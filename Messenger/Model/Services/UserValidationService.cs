@@ -2,7 +2,7 @@
 
 public interface IUserValidationService
 {
-    Task<List<string>?> ValidateUserRegistrationAsync(RegistrationUserDto dto);
+    Task<List<string>?> ValidateUniqueUserRegistrationAsync(RegistrationUserDto dto);
 }
 
 public class UserValidationService : IUserValidationService
@@ -14,7 +14,7 @@ public class UserValidationService : IUserValidationService
         _userRepository = userRepository;
     }
 
-    public async Task<List<string>?> ValidateUserRegistrationAsync(RegistrationUserDto dto)
+    public async Task<List<string>?> ValidateUniqueUserRegistrationAsync(RegistrationUserDto dto)
     {
         var errors = new List<string>();
 

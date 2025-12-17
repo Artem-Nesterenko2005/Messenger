@@ -42,7 +42,7 @@ public class UserService : IUserService
             return errorMessages;
         };
 
-        var uniqueCheck = await _validationService.ValidateUserRegistrationAsync(dto);
+        var uniqueCheck = await _validationService.ValidateUniqueUserRegistrationAsync(dto);
         if (uniqueCheck != null)
             return uniqueCheck;
 
