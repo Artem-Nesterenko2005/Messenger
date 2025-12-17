@@ -1,0 +1,55 @@
+﻿@model Messenger.AuthorizationUserDto
+
+<h2>Авторизация пользователя</h2>
+
+@if (ViewData["ErrorMessages"] is List<string> errorMessages && errorMessages.Count > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @foreach(var i in errorMessages)
+        {
+            <li>@i</li>
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form method="post" action="/TryAuthorization">
+    <div class="form-group">
+        <label for="Username">Имя пользователя:</label>
+        <input type="text" class="form-control" id="Username" name="Username">
+    </div>
+
+    <div class="form-group">
+        <label for="Password">Пароль:</label>
+        <input type="password" class="form-control" id="Password" name="Password">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Войти</button>
+</form>
+
+<form method="get" action="/Registration">
+    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+</form>
+
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+        max-width: 400px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
