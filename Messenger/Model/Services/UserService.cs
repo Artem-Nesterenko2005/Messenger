@@ -19,16 +19,24 @@ public class UserService : IUserService
 
     private readonly IUserValidationService _validationService;
 
+    private readonly IAuthorizationService _authorizationService;
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
     public UserService(
         IUserRepository repository,
         IValidator<RegistrationUserDto> registrationValidator,
         IValidator<AuthorizationUserDto> authorizationValidator,
-        IUserValidationService validationService)
+        IUserValidationService validationService,
+        IAuthorizationService authorizationService,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = repository;
         _registrationValidator = registrationValidator;
         _authorizationValidator = authorizationValidator;
         _validationService = validationService;
+        _authorizationService = authorizationService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<List<string>?> TryRegistrationNewUser(RegistrationUserDto dto)
@@ -72,6 +80,7 @@ public class UserService : IUserService
         var recordByName = await _userRepository.GetByUsernameAsync(dto.Username);
         if (recordByName != null && recordByName.Password == dto.Password)
         {
+            await _authorizationService.AddCookies(dto.Username, "/Authorization", _httpContextAccessor.HttpContext!);
             return null;
         }
         return new List<string> { "Неверный логин или пароль" };
