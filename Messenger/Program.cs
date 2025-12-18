@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddSignalR();
 builder.Services.AddValidatorsFromAssemblyContaining<RegistrationUserValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<AuthorizationUserValidator>();
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -44,6 +44,10 @@ app.MapStaticAssets();
 
 app.MapControllers();
 
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChatHub>("chatHub");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
