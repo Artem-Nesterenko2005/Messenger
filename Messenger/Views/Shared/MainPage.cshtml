@@ -1,0 +1,14 @@
+﻿@model Messenger.AuthorizationUserDto
+
+<h2>Чаты:</h2>
+
+@{
+    var chatNames = ViewData["chatNames"] as List<Messenger.User> ?? new List<Messenger.User>();
+    foreach(var i in chatNames)
+    {
+        <form method="get" action="/OpenChat">
+            <input type="hidden" name="interlocutorId" value="@i.Id"/>
+            <button>@i.Username</button>
+        </form>
+    }
+}

@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Messenger;
 
@@ -29,10 +27,12 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Message>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.SenderId).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.SenderUsername).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.SenderId).IsRequired();
+            entity.Property(e => e.RecipientId).IsRequired();
             entity.Property(e => e.Content).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Timestamp).IsRequired();
+            entity.Property(e => e.SenderName).IsRequired();
+            entity.HasIndex(e => e.SenderId);
         });
     }
 }

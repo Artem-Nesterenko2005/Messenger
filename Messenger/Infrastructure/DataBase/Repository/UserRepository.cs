@@ -1,18 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Messenger;
 
 public interface IUserRepository
 {
-    Task<User?> GetByIdAsync(int id);
+    Task<User?> GetByIdAsync(string id);
     Task<User?> GetByUsernameAsync(string username);
     Task<User?> GetByEmailAsync(string email);
     Task<IEnumerable<User>> GetAllAsync();
     Task AddAsync(User user);
-    Task DeleteAsync(int id);
+    Task DeleteAsync(string id);
 }
 
 public class UserRepository : IUserRepository
@@ -24,7 +21,7 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(string id)
     {
         return await _context.Users.FindAsync(id);
     }
@@ -53,7 +50,7 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(string id)
     {
         var user = await GetByIdAsync(id);
         if (user != null)

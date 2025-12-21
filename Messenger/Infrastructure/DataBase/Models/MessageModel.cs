@@ -11,8 +11,9 @@ public record Message
 
     public required string SenderId { get; set; }
 
-    [MaxLength(50)]
-    public required string SenderUsername { get; set; }
+    public required string SenderName { get; set; }
+
+    public required string RecipientId { get; set; }
 
     public required string Content { get; set; }
 
