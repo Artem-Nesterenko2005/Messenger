@@ -80,7 +80,7 @@ public class UserService : IUserService
         var recordByName = await _userRepository.GetByUsernameAsync(dto.Username);
         if (recordByName != null && recordByName.Password == dto.Password)
         {
-            await _authorizationService.AddCookies(recordByName.Id, "/Authorization", _httpContextAccessor.HttpContext!);
+            await _authorizationService.AddCookies(recordByName.Id, recordByName.Username, "/Authorization", _httpContextAccessor.HttpContext!);
             return null;
         }
         return new List<string> { "Неверный логин или пароль" };

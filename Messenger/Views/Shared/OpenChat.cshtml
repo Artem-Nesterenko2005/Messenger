@@ -1,64 +1,108 @@
-﻿@model Messenger.AuthorizationUserDto
+﻿@using System.Security.Claims
+@model Messenger.AuthorizationUserDto
 
 @{
-    <!DOCTYPE html>
-    <html>
-
-    <head>
-        <meta charset="utf-8" />
-        <title>
-            SignalR Chat
-        </title>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js">
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.13/signalr.min.js">
-        </script>
-    </head>
-
-    <body>
-        <div>
-            <input id="username" placeholder="username"
-                   type="text" />
-            <input id="message" placeholder="message"
-                   type="text" />
-            <button id="send-btn">
-                Send
-            </button>
-        </div>
-        <div id="chatBox">
-        </div>
-        <script>
-            let connection = new signalR.HubConnectionBuilder()
-                                        .withUrl("/chatHub").build();
-            connection.on("ReceiveMessage", function (user, message) {
-                let encodedUser = $("<div />").text(user).html();
-                let encodedMsg = $("<div />").text(message).html();
-                $("#chatBox").append("<p><strong>" + encodedUser + "</strong>: " + encodedMsg + "</p>");
-            });
-
-            $("#send-btn").click(function () {
-                let our_user = $("#username").val();
-                let Message = $("#message").val();
-                connection.invoke("Message", our_user, Message);
-                $("#message").val("").focus();
-            });
-
-
-            connection.start().then(function () {
-                console.log("Connected!");
-            }).catch(function (err) {
-                console.error(err.toString());
-            });
-        </script>
-    </body>
-
-    </html>
-
-    var chatMessages = ViewData["chatMessages"] as List<Message> ?? new List<Message>();
-    foreach (var i in chatMessages)
-    {
-        <form method="get" action="/OpenChat">
-            <div>@i.SenderName : @i.Content</div>
-        </form>
-    }
+    var messages = ViewData["chatMessages"] as List<Message> ?? new List<Message>();
+    var myId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+    var interlocutorId = messages.First().RecipientId == myId ? messages.First().SenderId : messages.First().RecipientId;
 }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>SignalR Chat</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.13/signalr.min.js"></script>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages-list">
+            @foreach (var message in messages)
+            {
+                <div>@message.SenderName : @message.Content</div>
+            }
+        </div>
+
+        <div>
+            <!-- Используем AJAX вместо обычной формы -->
+            <input type="hidden" id="recipientId" value="@interlocutorId" />
+            <input id="messageInput" placeholder="Введите сообщение" type="text" />
+            <button id="sendButton">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            // 1. Подключаемся к SignalR хабу
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chatHub") // Убедитесь, что путь правильный
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            // 2. Обработчик для получения сообщений
+            connection.on("Receive", function (data) {
+                const senderName = data.senderName || data.SenderName || "Неизвестный";
+                const content = data.content || data.Content || data;
+                // Добавляем новое сообщение в список
+                $("#messages-list").append(`<div><strong>${senderName}:</strong> ${content}</div>`);
+
+                // Прокручиваем вниз
+                $("#messages-list").scrollTop($("#messages-list")[0].scrollHeight);
+            });
+
+            // 3. Подключаемся
+            connection.start()
+                .then(function () {
+                    console.log("SignalR подключен");
+
+                    // Входим в группу (если используете группы)
+                    const myId = "@myId";
+                    connection.invoke("JoinGroup", myId);
+                })
+                .catch(function (err) {
+                    console.error("Ошибка подключения SignalR:", err.toString());
+                });
+
+            // 4. Обработчик отправки сообщения через AJAX
+            $("#sendButton").click(function () {
+                const recipientId = $("#recipientId").val();
+                const message = $("#messageInput").val();
+
+                if (!message.trim()) return;
+
+                // Отправляем через AJAX
+                $.ajax({
+                    url: "/SendMessage",
+                    type: "POST",
+                    data: {
+                        recipientId: recipientId,
+                        content: message
+                    },
+                    success: function () {
+                        // Очищаем поле ввода
+                        $("#messageInput").val("");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Ошибка отправки:", error);
+                    }
+                });
+            });
+
+            // 5. Отправка по Enter
+            $("#messageInput").keypress(function (e) {
+                if (e.which === 13) { // Enter
+                    $("#sendButton").click();
+                }
+            });
+
+            // 6. Обработка отключения
+            connection.onclose(function () {
+                console.log("Соединение закрыто");
+                // Пытаемся переподключиться
+                setTimeout(() => connection.start(), 5000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -10,7 +10,7 @@ public interface IChatService
     Task<List<Message>> GetChatHistoryAsync(string currentUserId, string otherUserId);
 
     // Отправить сообщение
-    Task<Message> SendMessageAsync(string senderId, string recipientId, string senderName, string content);
+    Task<Message> SaveMessageAsync(string senderId, string recipientId, string senderName, string content);
 
     // Поиск пользователей для нового чата
     Task<List<User>> SearchUsersAsync(string currentUserId, string searchTerm);
@@ -75,7 +75,7 @@ public class ChatService : IChatService
             .ToListAsync();
     }
 
-    public async Task<Message> SendMessageAsync(string senderId, string recipientId, string senderName, string content)
+    public async Task<Message> SaveMessageAsync(string senderId, string recipientId, string senderName, string content)
     {
         var message = new Message
         {
