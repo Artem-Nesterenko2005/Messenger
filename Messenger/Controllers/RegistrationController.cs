@@ -5,11 +5,14 @@ namespace Messenger;
 
 public class RegistrationController : Controller
 {
-    private readonly IUserService _userService;
+    private readonly IUserAuthorizationService _userService;
 
-    public RegistrationController(IUserService userService)
+    private readonly IUserValidationService _userValidationService;
+
+    public RegistrationController(IUserAuthorizationService userService, IUserValidationService validationService)
     {
         _userService = userService;
+        _userValidationService = validationService;
     }
 
     [HttpGet("Registration")]
@@ -21,12 +24,12 @@ public class RegistrationController : Controller
     [HttpPost("TryRegistration")]
     public async Task<IActionResult> RegisterNewUser(RegistrationUserDto dto)
     {
-        var validationErrors = await _userService.TryRegistrationNewUser(dto);
+        var validationErrors = await _userValidationService.ValidateRegistrationAsync(dto);
         if (validationErrors != null)
         {
-            ViewData["ErrorMessages"] = validationErrors;
-            return View("Registration", dto);
+            return View("Registration", validationErrors);
         }
+        await _userService.RegistrationNewUser(dto);
         return View("SuccessAuthorization");
     }
 }

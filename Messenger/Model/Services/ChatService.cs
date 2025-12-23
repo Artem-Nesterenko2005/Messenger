@@ -3,16 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 public interface IChatService
 {
-    // Получить все чаты пользователя (группировка сообщений по собеседникам)
-    Task<List<ChatDto>> GetUserChatsAsync(string userId);
+    Task<List<User>> GetUserInterlocutorsAsync(string userId);
 
-    // Получить историю сообщений с конкретным пользователем
     Task<List<Message>> GetChatHistoryAsync(string currentUserId, string otherUserId);
 
-    // Отправить сообщение
     Task<Message> SaveMessageAsync(string senderId, string recipientId, string senderName, string content);
 
-    // Поиск пользователей для нового чата
     Task<List<User>> SearchUsersAsync(string currentUserId, string searchTerm);
 }
 
@@ -20,14 +16,16 @@ public class ChatService : IChatService
 {
     private readonly AppDbContext _context;
 
-    public ChatService(AppDbContext context)
+    private readonly IClaimService _claimService;
+
+    public ChatService(AppDbContext context, IClaimService claimService)
     {
         _context = context;
+        _claimService = claimService;
     }
 
-    public async Task<List<ChatDto>> GetUserChatsAsync(string userId)
+    public async Task<List<User>> GetUserInterlocutorsAsync(string userId)
     {
-        // Находим всех уникальных собеседников
         var interlocutors = await _context.Messages
             .Where(m => m.SenderId == userId || m.RecipientId == userId)
             .Select(m => m.SenderId == userId ? m.RecipientId : m.SenderId)
@@ -38,13 +36,11 @@ public class ChatService : IChatService
 
         foreach (var interlocutorId in interlocutors)
         {
-            // Получаем информацию о собеседнике
             var interlocutor = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == interlocutorId);
 
             if (interlocutor == null) continue;
 
-            // Получаем последние сообщения в этом чате (до 50)
             var lastMessages = await _context.Messages
                 .Where(m => (m.SenderId == userId && m.RecipientId == interlocutorId) ||
                            (m.SenderId == interlocutorId && m.RecipientId == userId))
@@ -52,18 +48,17 @@ public class ChatService : IChatService
                 .Take(50)
                 .ToListAsync();
 
-            // Создаем DTO чата
             var chat = new ChatDto
             {
-                Id = $"chat_{userId}_{interlocutorId}", // Уникальный ID чата
-                Users = new List<User> { interlocutor }, // Собеседник
+                Id = $"chat_{userId}_{interlocutorId}",
+                Users = new List<User> { interlocutor },
                 Messages = lastMessages
             };
 
             chats.Add(chat);
         }
 
-        return chats;
+        return chats.Select(e => e.Users.First(w => w.Username != _claimService.GetUserName())).ToList();
     }
 
     public async Task<List<Message>> GetChatHistoryAsync(string currentUserId, string otherUserId)

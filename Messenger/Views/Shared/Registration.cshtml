@@ -1,13 +1,13 @@
-﻿@model Messenger.RegistrationUserDto
+﻿@model List<ValidationError>
 
 <h2>Регистрация нового пользователя</h2>
 
-@if (ViewData["ErrorMessages"] is List<string> errorMessages && errorMessages.Count > 0)
+@if (Model != null && Model.Count > 0)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @foreach(var i in errorMessages)
+        @foreach (var i in Model)
         {
-            <li>@i</li>
+            <li>@i.Message</li>
         }
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>

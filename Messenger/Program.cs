@@ -5,43 +5,44 @@ using Messenger.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+ConfigurationBase(builder);
+ConfigurationValidation(builder);
+ConfigurationCustomeServices(builder);
+ConfigurationAuthorization(builder);
 
-if (!builder.Environment.IsDevelopment())
+void ConfigurationValidation(WebApplicationBuilder builder)
 {
-    builder.WebHost.ConfigureKestrel(serverOptions =>
-    {
-        serverOptions.ListenAnyIP(8080); // Стандартный порт для облаков
-    });
+    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddFluentValidationClientsideAdapters();
+    builder.Services.AddValidatorsFromAssemblyContaining<RegistrationUserValidator>();
+    builder.Services.AddValidatorsFromAssemblyContaining<AuthorizationUserValidator>();
 }
 
-// Настройка HTTPS редиректа
-builder.Services.AddHttpsRedirection(options =>
+void ConfigurationCustomeServices(WebApplicationBuilder builder)
 {
-    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
-    options.HttpsPort = 443;
-});
+    builder.Services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
+    builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IUserValidationService, UserValidationService>();
+    builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
+    builder.Services.AddScoped<IChatService, ChatService>();
+    builder.Services.AddScoped<IClaimService, ClaimService>();
+}
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();
+void ConfigurationAuthorization(WebApplicationBuilder builder)
+{
+    builder.Services.AddAuthentication("Cookies").AddCookie(options => options.LoginPath = "/Authorization");
+    builder.Services.AddAuthorization();
+}
 
-builder.Services.AddAuthentication("Cookies").AddCookie(options => options.LoginPath = "/Authorization");
-builder.Services.AddAuthorization();
-
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<RegistrationUserValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<AuthorizationUserValidator>();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
+void ConfigurationBase(WebApplicationBuilder builder)
+{
+    builder.Services.AddControllersWithViews();
+    builder.Services.AddSignalR();
+    builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserValidationService, UserValidationService>();
-builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
-builder.Services.AddScoped<IChatService, ChatService>();
+    builder.Services.AddHttpContextAccessor();
+}
 
 var app = builder.Build();
 

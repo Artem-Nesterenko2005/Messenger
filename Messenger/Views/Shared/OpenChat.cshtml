@@ -1,11 +1,5 @@
 ﻿@using System.Security.Claims
-@model Messenger.AuthorizationUserDto
-
-@{
-    var messages = ViewData["chatMessages"] as List<Message> ?? new List<Message>();
-    var myId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-    var interlocutorId = messages.First().RecipientId == myId ? messages.First().SenderId : messages.First().RecipientId;
-}
+@model ChatViewModel
 
 <!DOCTYPE html>
 <html>
@@ -18,7 +12,7 @@
 <body>
     <div id="chat-container">
         <div id="messages-list">
-            @foreach (var message in messages)
+            @foreach (var message in Model.Messages)
             {
                 <div>@message.SenderName : @message.Content</div>
             }
@@ -26,7 +20,7 @@
 
         <div>
             <!-- Используем AJAX вместо обычной формы -->
-            <input type="hidden" id="recipientId" value="@interlocutorId" />
+            <input type="hidden" id="recipientId" value="@Model.InterlocutorId" />
             <input id="messageInput" placeholder="Введите сообщение" type="text" />
             <button id="sendButton">Отправить</button>
         </div>
@@ -57,7 +51,7 @@
                     console.log("SignalR подключен");
 
                     // Входим в группу (если используете группы)
-                    const myId = "@myId";
+                    const myId = "@Model.MyId";
                     connection.invoke("JoinGroup", myId);
                 })
                 .catch(function (err) {

@@ -31,7 +31,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.RecipientId).IsRequired();
             entity.Property(e => e.Content).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Timestamp).IsRequired();
-            entity.Property(e => e.SenderName).IsRequired();
             entity.HasIndex(e => e.SenderId);
         });
     }

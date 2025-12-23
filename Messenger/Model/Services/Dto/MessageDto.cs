@@ -1,6 +1,6 @@
 ﻿namespace Messenger;
 
-public class MessageDto
+public record MessageDto
 {
     public required string SenderName { get; set; }
 

@@ -1,7 +1,5 @@
-﻿using Messenger.Services;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Messenger;
 
@@ -9,27 +7,35 @@ namespace Messenger;
 public class MainController : Controller
 {
     private readonly IChatService _chatService;
-    private readonly IUserRepository _userRepository;
 
-    public MainController(IChatService chatService, IUserRepository userRepository)
+    private readonly IClaimService _claimService;
+
+    public MainController(IChatService chatService, IClaimService claimService)
     {
         _chatService = chatService;
-        _userRepository = userRepository;
+        _claimService = claimService;
     }
 
     [HttpGet("/MainPage")]
     public async Task<IActionResult> MainPage()
     {
-        var chats = await _chatService.GetUserChatsAsync(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        ViewData["chatNames"] = chats.Select(e => e.Users.First(w => w.Username != User.Identity!.Name)).ToList();
-        return View();
+        var chats = await _chatService.GetUserInterlocutorsAsync(_claimService.GetUserId());
+        return View(new InterlocutorsViewModel 
+        { 
+            Interlocutors = chats
+        });
     }
 
     [HttpGet("/OpenChat")]
     public async Task<IActionResult> OpenChat(string interlocutorId)
     {
-        ViewData["chatMessages"] = await _chatService.GetChatHistoryAsync(User
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value!, interlocutorId);
-        return View();
+        var chatHistory = await _chatService.GetChatHistoryAsync(_claimService.GetUserId(), interlocutorId);
+        return View(new ChatViewModel
+        { 
+            InterlocutorId = interlocutorId,
+            Messages = chatHistory,
+            MyId = _claimService.GetUserId(),
+            MyName = _claimService.GetUserName(),
+        });
     }
 }
