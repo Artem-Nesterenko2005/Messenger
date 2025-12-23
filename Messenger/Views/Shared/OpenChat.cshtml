@@ -5,96 +5,41 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>SignalR Chat</title>
+    <title>SignalR Chat - @Model.InterlocutorId</title>
+    <!-- Подключаем скрипты -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.13/signalr.min.js"></script>
+    <script src="~/js/chat.js"></script>
 </head>
 <body>
     <div id="chat-container">
         <div id="messages-list">
             @foreach (var message in Model.Messages)
             {
-                <div>@message.SenderName : @message.Content</div>
+                <div class="message @(message.SenderId == Model.MyId ? "my-message" : "their-message")">
+                    <strong>@message.SenderName:</strong> @message.Content
+                </div>
             }
         </div>
 
         <div>
-            <!-- Используем AJAX вместо обычной формы -->
             <input type="hidden" id="recipientId" value="@Model.InterlocutorId" />
+            <input type="hidden" id="myId" value="@Model.MyId" />
             <input id="messageInput" placeholder="Введите сообщение" type="text" />
             <button id="sendButton">Отправить</button>
         </div>
     </div>
 
     <script>
-        $(function () {
-            // 1. Подключаемся к SignalR хабу
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl("/chatHub") // Убедитесь, что путь правильный
-                .configureLogging(signalR.LogLevel.Information)
-                .build();
-
-            // 2. Обработчик для получения сообщений
-            connection.on("Receive", function (data) {
-                const senderName = data.senderName || data.SenderName || "Неизвестный";
-                const content = data.content || data.Content || data;
-                // Добавляем новое сообщение в список
-                $("#messages-list").append(`<div><strong>${senderName}:</strong> ${content}</div>`);
-
-                // Прокручиваем вниз
-                $("#messages-list").scrollTop($("#messages-list")[0].scrollHeight);
-            });
-
-            // 3. Подключаемся
-            connection.start()
-                .then(function () {
-                    console.log("SignalR подключен");
-
-                    // Входим в группу (если используете группы)
-                    const myId = "@Model.MyId";
-                    connection.invoke("JoinGroup", myId);
-                })
-                .catch(function (err) {
-                    console.error("Ошибка подключения SignalR:", err.toString());
-                });
-
-            // 4. Обработчик отправки сообщения через AJAX
-            $("#sendButton").click(function () {
-                const recipientId = $("#recipientId").val();
-                const message = $("#messageInput").val();
-
-                if (!message.trim()) return;
-
-                // Отправляем через AJAX
-                $.ajax({
-                    url: "/SendMessage",
-                    type: "POST",
-                    data: {
-                        recipientId: recipientId,
-                        content: message
-                    },
-                    success: function () {
-                        // Очищаем поле ввода
-                        $("#messageInput").val("");
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Ошибка отправки:", error);
-                    }
-                });
-            });
-
-            // 5. Отправка по Enter
-            $("#messageInput").keypress(function (e) {
-                if (e.which === 13) { // Enter
-                    $("#sendButton").click();
-                }
-            });
-
-            // 6. Обработка отключения
-            connection.onclose(function () {
-                console.log("Соединение закрыто");
-                // Пытаемся переподключиться
-                setTimeout(() => connection.start(), 5000);
+        // Инициализация после загрузки страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatClient = new ChatClient({
+                recipientId: document.getElementById('recipientId').value,
+                myId: document.getElementById('myId').value,
+                messageInputId: '#messageInput',
+                sendButtonId: '#sendButton',
+                messagesListId: '#messages-list',
+                hubUrl: '/chatHub'
             });
         });
     </script>

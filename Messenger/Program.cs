@@ -27,6 +27,7 @@ void ConfigurationCustomeServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
     builder.Services.AddScoped<IChatService, ChatService>();
     builder.Services.AddScoped<IClaimService, ClaimService>();
+    builder.Services.AddScoped<IMessagingService, MessagingService>();
 }
 
 void ConfigurationAuthorization(WebApplicationBuilder builder)
@@ -70,8 +71,6 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("chatHub");
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Main}/{action=MainPage}/{id?}");
+app.MapGet("/", () => Results.Redirect("/MainPage"));
 
 app.Run();

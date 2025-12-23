@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
 
 namespace Messenger;
 
@@ -10,12 +8,18 @@ public class ChatController : Controller
 {
     private readonly IChatService _chatService;
 
-    private readonly IHubContext<ChatHub> _hub;
+    private readonly IMessagingService _messagingService;
 
-    public ChatController(IChatService chatService, IHubContext<ChatHub> hub)
+    private readonly IClaimService _claimService;
+
+    public ChatController(
+        IChatService chatService,
+        IMessagingService messagingService,
+        IClaimService claimService)
     {
         _chatService = chatService;
-        _hub = hub;
+        _messagingService = messagingService;
+        _claimService = claimService;
     }
 
     [HttpPost("/SendMessage")]
@@ -23,23 +27,23 @@ public class ChatController : Controller
     {
 
         await _chatService.SaveMessageAsync(
-            User.FindFirst(ClaimTypes.NameIdentifier)?.Value!,
+            _claimService.GetUserId(),
             recipientId,
-            User.FindFirst(ClaimTypes.Name)?.Value!,
+            _claimService.GetUserName(),
             content);
 
-        await _hub.Clients.User(recipientId).SendAsync("Receive", new
+        await _messagingService.SendMessageAsync(new MessageDto
         {
-            senderName = User.FindFirst(ClaimTypes.Name)?.Value!,
-            content = content,
-            timestamp = DateTime.Now
+            RecipientId = recipientId,
+            Content = content,
+            SenderName = _claimService.GetUserName()
         });
 
-        await _hub.Clients.User(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!).SendAsync("Receive", new
+        await _messagingService.SendMessageAsync(new MessageDto
         {
-            senderName = User.FindFirst(ClaimTypes.Name)?.Value!,
-            content = content,
-            timestamp = DateTime.Now
+            RecipientId = _claimService.GetUserId(),
+            Content = content,
+            SenderName = _claimService.GetUserName()
         });
         return NoContent();
     }

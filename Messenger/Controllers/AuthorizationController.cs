@@ -30,6 +30,6 @@ public class AuthorizationController : Controller
         {
             return View("Authorization", validationErrors ?? authorizationErrors);
         }
-        return NoContent();
+        return RedirectToAction("MainPage", "Main");
     }
 }
