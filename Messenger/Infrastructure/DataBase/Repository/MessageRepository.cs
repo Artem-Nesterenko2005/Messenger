@@ -4,8 +4,8 @@ namespace Messenger;
 
 public interface IMessageRepository
 {
-    Task AddAsync(Message message);
-    Task<List<Message>> GetRecentMessagesAsync(string userId, int count = 50);
+    Task AddMessageAsync(Message message);
+    Task<List<Message>> GetChatHistoryAsync(string currentUserId, string otherUserId);
 }
 
 public class MessageRepository : IMessageRepository
@@ -17,18 +17,17 @@ public class MessageRepository : IMessageRepository
         _context = context;
     }
 
-    public async Task AddAsync(Message message)
+    public async Task AddMessageAsync(Message message)
     {
         await _context.Messages.AddAsync(message);
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<Message>> GetRecentMessagesAsync(string userId, int count = 50)
+    public async Task<List<Message>> GetChatHistoryAsync(string currentUserId, string otherUserId)
     {
         return await _context.Messages
-            .Where(m => m.SenderId == userId)
-            .OrderByDescending(m => m.Timestamp)
-            .Take(count)
+            .Where(m => (m.SenderId == currentUserId && m.RecipientId == otherUserId) ||
+                       (m.SenderId == otherUserId && m.RecipientId == currentUserId))
             .OrderBy(m => m.Timestamp)
             .ToListAsync();
     }

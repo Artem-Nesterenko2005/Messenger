@@ -6,7 +6,6 @@
 <head>
     <meta charset="utf-8" />
     <title>SignalR Chat - @Model.InterlocutorId</title>
-    <!-- Подключаем скрипты -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.13/signalr.min.js"></script>
     <script src="~/js/chat.js"></script>
@@ -31,7 +30,6 @@
     </div>
 
     <script>
-        // Инициализация после загрузки страницы
         document.addEventListener('DOMContentLoaded', function() {
             const chatClient = new ChatClient({
                 recipientId: document.getElementById('recipientId').value,

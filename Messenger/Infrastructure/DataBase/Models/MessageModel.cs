@@ -7,7 +7,7 @@ public record Message
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public required string Id { get; set; }
+    public string Id { get; } = Guid.NewGuid().ToString();
 
     public required string SenderId { get; set; }
 
@@ -17,5 +17,5 @@ public record Message
 
     public required string Content { get; set; }
 
-    public required DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    public DateTime Timestamp { get; } = DateTime.UtcNow;
 }

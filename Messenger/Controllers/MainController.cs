@@ -38,4 +38,11 @@ public class MainController : Controller
             MyName = _claimService.GetUserName(),
         });
     }
+
+    [HttpGet("/SearchInterlocutor")]
+    public async Task<IActionResult> SearchInterlocutor(string interlocutorSubName)
+    {
+        var interlocutorsBySubName = _chatService.SearchUsers(interlocutorSubName);
+        return Ok(interlocutorsBySubName);
+    }
 }

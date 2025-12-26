@@ -2,13 +2,93 @@
 
 <h2>Чаты:</h2>
 
-@{
-    foreach(var i in Model.Interlocutors)
-    {
-        <form method="get" action="/OpenChat">
-            <input type="hidden" name="interlocutorId" value="@i.Id"/>
-            <button>@i.Username</button>
-        </form>
-    }
-}
+<div class="container">
+    <div class="row">
+        <!-- Основной контент страницы -->
+        <div class="col-md-8">
+            <!-- Ваш существующий контент -->
+            <h2>Мои диалоги</h2>
+            @foreach (var interlocutor in Model.Interlocutors)
+            {
+                <form method="get" action="/OpenChat">
+                    <input type="hidden" name="interlocutorId" value="@interlocutor.Id" />
+                    <button>@interlocutor.Username</button>
+                </form>
+            }
+        </div>
 
+        <!-- Панель поиска -->
+        <div class="col-md-4">
+            <div class="search-panel">
+                <h3>Поиск собеседников</h3>
+
+                <!-- Поле поиска -->
+                <div class="form-group">
+                    <input type="text"
+                           id="searchInput"
+                           class="form-control"
+                           placeholder="Введите имя или email..."
+                           oninput="debouncedSearch(this)">
+                    <small class="form-text text-muted">
+                        Поиск происходит автоматически при вводе текста
+                    </small>
+                </div>
+
+                <!-- Контейнер для результатов -->
+                <div id="searchResultsContainer" class="search-results">
+                    <!-- Результаты будут появляться здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Стили для результатов поиска -->
+<style>
+    .search-panel {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .search-results {
+        margin-top: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .interlocutor-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: white;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .interlocutor-info {
+        flex-grow: 1;
+    }
+
+    .interlocutor-name {
+        font-weight: bold;
+        display: block;
+    }
+
+    .interlocutor-email {
+        font-size: 0.9em;
+        color: #6c757d;
+    }
+
+    .loading, .no-results, .error {
+        text-align: center;
+        padding: 20px;
+        color: #6c757d;
+    }
+</style>
+
+<!-- Подключаем наш скрипт -->
+<script src="~/js/interlocutorsList.js"></script> <!-- если вынесете JS в отдельный файл -->

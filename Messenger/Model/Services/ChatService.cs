@@ -1,5 +1,4 @@
 ﻿using Messenger;
-using Microsoft.EntityFrameworkCore;
 
 public interface IChatService
 {
@@ -7,99 +6,51 @@ public interface IChatService
 
     Task<List<Message>> GetChatHistoryAsync(string currentUserId, string otherUserId);
 
-    Task<Message> SaveMessageAsync(string senderId, string recipientId, string senderName, string content);
+    Task SaveMessageAsync(string senderId, string recipientId, string senderName, string content);
 
-    Task<List<User>> SearchUsersAsync(string currentUserId, string searchTerm);
+    List<User> SearchUsers(string subName);
 }
 
 public class ChatService : IChatService
 {
-    private readonly AppDbContext _context;
+    private readonly IUserRepository _userRepository;
 
-    private readonly IClaimService _claimService;
+    private readonly IMessageRepository _messageRepository;
 
-    public ChatService(AppDbContext context, IClaimService claimService)
+    public ChatService(IUserRepository userRepository, IMessageRepository messageRepository)
     {
-        _context = context;
-        _claimService = claimService;
+        _userRepository = userRepository;
+        _messageRepository = messageRepository;
     }
 
     public async Task<List<User>> GetUserInterlocutorsAsync(string userId)
     {
-        var interlocutors = await _context.Messages
-            .Where(m => m.SenderId == userId || m.RecipientId == userId)
-            .Select(m => m.SenderId == userId ? m.RecipientId : m.SenderId)
-            .Distinct()
-            .ToListAsync();
+        var interlocutorsIds = await _userRepository.GetInterlocutorsAsync(userId);
+        var interlocutors = new List<User>();
 
-        var chats = new List<ChatDto>();
-
-        foreach (var interlocutorId in interlocutors)
+        foreach (var i in interlocutorsIds)
         {
-            var interlocutor = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == interlocutorId);
-
-            if (interlocutor == null) continue;
-
-            var lastMessages = await _context.Messages
-                .Where(m => (m.SenderId == userId && m.RecipientId == interlocutorId) ||
-                           (m.SenderId == interlocutorId && m.RecipientId == userId))
-                .OrderByDescending(m => m.Timestamp)
-                .Take(50)
-                .ToListAsync();
-
-            var chat = new ChatDto
-            {
-                Id = $"chat_{userId}_{interlocutorId}",
-                Users = new List<User> { interlocutor },
-                Messages = lastMessages
-            };
-
-            chats.Add(chat);
+            interlocutors.Add(await _userRepository.GetByIdAsync(i));
         }
 
-        return chats.Select(e => e.Users.First(w => w.Username != _claimService.GetUserName())).ToList();
+        return interlocutors;
     }
 
     public async Task<List<Message>> GetChatHistoryAsync(string currentUserId, string otherUserId)
-    {
-        return await _context.Messages
-            .Where(m => (m.SenderId == currentUserId && m.RecipientId == otherUserId) ||
-                       (m.SenderId == otherUserId && m.RecipientId == currentUserId))
-            .OrderBy(m => m.Timestamp)
-            .ToListAsync();
-    }
+        => await _messageRepository.GetChatHistoryAsync(currentUserId, otherUserId);
 
-    public async Task<Message> SaveMessageAsync(string senderId, string recipientId, string senderName, string content)
+    public async Task SaveMessageAsync(string senderId, string recipientId, string senderName, string content)
     {
         var message = new Message
         {
-            Id = Guid.NewGuid().ToString(),
             SenderId = senderId,
             RecipientId = recipientId,
             Content = content,
-            Timestamp = DateTime.UtcNow,
             SenderName = senderName,
         };
 
-        _context.Messages.Add(message);
-        await _context.SaveChangesAsync();
-
-        return message;
+        await _messageRepository.AddMessageAsync(message);
     }
 
-    public async Task<List<User>> SearchUsersAsync(string currentUserId, string searchTerm)
-    {
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            return new List<User>();
-        }
-
-        return await _context.Users
-            .Where(u => u.Id != currentUserId &&
-                       (u.Username.Contains(searchTerm) ||
-                        u.Email.Contains(searchTerm)))
-            .Take(10)
-            .ToListAsync();
-    }
+    public List<User> SearchUsers(string subName) => _userRepository.GetBySubName(subName);
 }
