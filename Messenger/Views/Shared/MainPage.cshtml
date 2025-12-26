@@ -4,9 +4,7 @@
 
 <div class="container">
     <div class="row">
-        <!-- Основной контент страницы -->
         <div class="col-md-8">
-            <!-- Ваш существующий контент -->
             <h2>Мои диалоги</h2>
             @foreach (var interlocutor in Model.Interlocutors)
             {
@@ -17,12 +15,10 @@
             }
         </div>
 
-        <!-- Панель поиска -->
         <div class="col-md-4">
             <div class="search-panel">
                 <h3>Поиск собеседников</h3>
 
-                <!-- Поле поиска -->
                 <div class="form-group">
                     <input type="text"
                            id="searchInput"
@@ -34,16 +30,13 @@
                     </small>
                 </div>
 
-                <!-- Контейнер для результатов -->
                 <div id="searchResultsContainer" class="search-results">
-                    <!-- Результаты будут появляться здесь -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Стили для результатов поиска -->
 <style>
     .search-panel {
         background: #f8f9fa;
@@ -90,5 +83,4 @@
     }
 </style>
 
-<!-- Подключаем наш скрипт -->
-<script src="~/js/interlocutorsList.js"></script> <!-- если вынесете JS в отдельный файл -->
+<script src="~/js/interlocutorsList.js"></script>
