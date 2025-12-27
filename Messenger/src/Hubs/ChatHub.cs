@@ -12,7 +12,6 @@ public class ChatHub : Hub
         _httpContextAccessor = httpContextAccessor;
     }
 
-    // Подключение пользователя
     public override async Task OnConnectedAsync()
     {
         var userId = _httpContextAccessor.HttpContext?.User
@@ -20,14 +19,12 @@ public class ChatHub : Hub
 
         if (!string.IsNullOrEmpty(userId))
         {
-            // Добавляем пользователя в группу с его ID
             await Groups.AddToGroupAsync(Context.ConnectionId, userId);
         }
 
         await base.OnConnectedAsync();
     }
 
-    // Отключение пользователя
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var userId = _httpContextAccessor.HttpContext?.User
@@ -41,13 +38,11 @@ public class ChatHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
-    // Метод для присоединения к группе (если нужно)
     public async Task JoinGroup(string userId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, userId);
     }
 
-    // Метод для отправки сообщения конкретному пользователю
     public async Task SendToUser(string userId, string message)
     {
         await Clients.User(userId).SendAsync("Receive", message);

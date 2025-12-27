@@ -40,7 +40,7 @@ public class MainController : Controller
     }
 
     [HttpGet("/SearchInterlocutor")]
-    public async Task<IActionResult> SearchInterlocutor(string interlocutorSubName)
+    public IActionResult SearchInterlocutor(string interlocutorSubName)
     {
         var interlocutorsBySubName = _chatService.SearchUsers(interlocutorSubName);
         return Ok(interlocutorsBySubName);

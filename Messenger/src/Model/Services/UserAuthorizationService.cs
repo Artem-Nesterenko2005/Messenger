@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-namespace Messenger.Services;
+﻿namespace Messenger.Services;
 
 public interface IUserAuthorizationService
 {
