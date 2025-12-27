@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using Messenger;
 using Messenger.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationBase(builder);
@@ -57,7 +58,13 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot")),
+    RequestPath = ""
+});
 
 app.MapStaticAssets();
 
