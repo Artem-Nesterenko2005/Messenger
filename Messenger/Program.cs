@@ -8,7 +8,7 @@ using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationBase(builder);
 ConfigurationValidation(builder);
-ConfigurationCustomeServices(builder);
+ConfigurationCustomServices(builder);
 ConfigurationAuthorization(builder);
 
 void ConfigurationValidation(WebApplicationBuilder builder)
@@ -19,7 +19,7 @@ void ConfigurationValidation(WebApplicationBuilder builder)
     builder.Services.AddValidatorsFromAssemblyContaining<AuthorizationUserValidator>();
 }
 
-void ConfigurationCustomeServices(WebApplicationBuilder builder)
+void ConfigurationCustomServices(WebApplicationBuilder builder)
 {
     builder.Services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
     builder.Services.AddScoped<IMessageRepository, MessageRepository>();
@@ -44,6 +44,14 @@ void ConfigurationBase(WebApplicationBuilder builder)
     builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
     builder.Services.AddHttpContextAccessor();
+
+    if (builder.Environment.IsProduction())
+    {
+        builder.Configuration.Sources
+            .OfType<FileConfigurationSource>()
+            .ToList()
+            .ForEach(source => source.ReloadOnChange = false);
+    }
 }
 
 var app = builder.Build();
