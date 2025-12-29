@@ -22,7 +22,7 @@ public class AuthorizationController : Controller
     }
 
     [HttpPost("TryAuthorization")]
-    public async Task<IActionResult> TryAuthorization(AuthorizationUserDto dto)
+    public async Task<IActionResult> TryAuthorization([FromForm] AuthorizationUserDto dto)
     {
         var validationErrors = await _userValidationService.ValidateAuthorizationAsync(dto);
         var authorizationErrors = await _userService.Authorization(dto);

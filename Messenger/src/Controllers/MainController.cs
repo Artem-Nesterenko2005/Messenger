@@ -27,7 +27,7 @@ public class MainController : Controller
     }
 
     [HttpGet("/OpenChat")]
-    public async Task<IActionResult> OpenChat(string interlocutorId)
+    public async Task<IActionResult> OpenChat([FromQuery] string interlocutorId)
     {
         var chatHistory = await _chatService.GetChatHistoryAsync(_claimService.GetUserId(), interlocutorId);
         return View(new ChatViewModel
@@ -40,7 +40,7 @@ public class MainController : Controller
     }
 
     [HttpGet("/SearchInterlocutor")]
-    public IActionResult SearchInterlocutor(string interlocutorSubName)
+    public IActionResult SearchInterlocutor([FromForm] string interlocutorSubName)
     {
         var interlocutorsBySubName = _chatService.SearchUsers(interlocutorSubName);
         return Ok(interlocutorsBySubName);

@@ -22,7 +22,7 @@ public class RegistrationController : Controller
     }
 
     [HttpPost("TryRegistration")]
-    public async Task<IActionResult> RegisterNewUser(RegistrationUserDto dto)
+    public async Task<IActionResult> RegisterNewUser([FromForm] RegistrationUserDto dto)
     {
         var validationErrors = await _userValidationService.ValidateRegistrationAsync(dto);
         if (validationErrors != null)
