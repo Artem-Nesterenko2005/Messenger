@@ -44,13 +44,10 @@ void ConfigurationBase(WebApplicationBuilder builder)
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
     builder.Services.AddHttpContextAccessor();
 
-    if (builder.Environment.IsProduction())
-    {
-        builder.Configuration.Sources
-            .OfType<FileConfigurationSource>()
-            .ToList()
-            .ForEach(source => source.ReloadOnChange = false);
-    }
+    builder.Configuration.Sources
+        .OfType<FileConfigurationSource>()
+        .ToList()
+        .ForEach(source => source.ReloadOnChange = false);
 }
 
 var app = builder.Build();
