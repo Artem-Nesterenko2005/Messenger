@@ -3,9 +3,11 @@ using FluentValidation.AspNetCore;
 using Messenger;
 using Messenger.Services;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationBase(builder);
+ConfigurationMetrics(builder);
 ConfigurationValidation(builder);
 ConfigurationCustomServices(builder);
 ConfigurationAuthorization(builder);
@@ -16,6 +18,12 @@ void ConfigurationValidation(WebApplicationBuilder builder)
     builder.Services.AddFluentValidationClientsideAdapters();
     builder.Services.AddValidatorsFromAssemblyContaining<RegistrationUserValidator>();
     builder.Services.AddValidatorsFromAssemblyContaining<AuthorizationUserValidator>();
+}
+
+void ConfigurationMetrics(WebApplicationBuilder builder)
+{
+    builder.Services.AddHealthChecks().ForwardToPrometheus();
+    builder.Services.AddSingleton<IMetricsService, MetricsService>();
 }
 
 void ConfigurationCustomServices(WebApplicationBuilder builder)
@@ -64,6 +72,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHttpMetrics();
+app.UseMetricServer();
 
 app.MapStaticAssets();
 
