@@ -74,14 +74,17 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpMetrics();
-app.UseMetricServer();
 
 app.MapStaticAssets();
 
 app.MapControllers();
 
+app.MapMetrics("/metrics").RequireAuthorization();
+
 app.MapHub<ChatHub>("chatHub");
 
 app.MapGet("/", () => Results.Redirect("/MainPage"));
+
+app.MapHealthChecks("/health");
 
 app.Run();
