@@ -1,11 +1,9 @@
 ﻿global:
   scrape_interval: 15s
-  scrape_timeout: 30s
 
 scrape_configs:
   - job_name: 'messenger'
     scrape_interval: 15s
-    scrape_timeout: 30s
     metrics_path: '/metrics'
     scheme: 'https'
     static_configs:
