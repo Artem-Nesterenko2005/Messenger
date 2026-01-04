@@ -7,4 +7,4 @@ scrape_configs:
     metrics_path: '/metrics'
     scheme: 'https'
     static_configs:
-      - targets: ['messenger-s65n.onrender.com:443']
+      - targets: ['messenger-s65n.onrender.com']

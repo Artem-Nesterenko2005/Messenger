@@ -79,7 +79,7 @@ app.MapStaticAssets();
 
 app.MapControllers();
 
-app.MapMetrics("/metrics").RequireAuthorization();
+app.MapMetrics("/metrics");
 
 app.MapHub<ChatHub>("chatHub");
 
