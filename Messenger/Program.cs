@@ -77,11 +77,8 @@ app.UseHttpMetrics();
 
 app.MapStaticAssets();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapMetrics("/metrics").AllowAnonymous();
-    endpoints.MapControllers();
-});
+app.MapMetrics("/metrics").AllowAnonymous();
+app.MapControllers();
 
 app.MapHub<ChatHub>("chatHub");
 
