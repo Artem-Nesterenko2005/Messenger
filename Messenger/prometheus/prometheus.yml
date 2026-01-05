@@ -2,17 +2,10 @@
   scrape_interval: 15s
 
 remote_write:
-<<<<<<< HEAD
   - url: '${GRAFANA_URL}/api/prom/push'
     basic_auth:
       username: '${GRAFANA_USER_ID}'
       password: '${GRAFANA_API_KEY}'
-=======
-  - url: 'https://prometheus-prod-36-prod-us-west-0.grafana.net/api/prom/push'
-    basic_auth:
-      username: '2895337'
-      password: 'glc_eyJvIjoiMTYzMjQ2OCIsIm4iOiJzdGFjay0xNDg1NTUyLWhtLXJlYWQtcGFzc3dvcmQiLCJrIjoiVjBySjg1MnJJMTVwNTlvcllyNGlVMWNIIiwibSI6eyJyIjoicHJvZC11cy13ZXN0LTAifX0='
->>>>>>> b414959c6c9166ad7868b0fb18c253043dfcf483
 
 scrape_configs:
   - job_name: 'messenger'
@@ -21,3 +14,4 @@ scrape_configs:
     scheme: 'https'
     static_configs:
       - targets: ['messenger-s65n.onrender.com']
+  
