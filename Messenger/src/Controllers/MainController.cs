@@ -40,7 +40,7 @@ public class MainController : Controller
     }
 
     [HttpGet("/SearchInterlocutor")]
-    public IActionResult SearchInterlocutor([FromForm] string interlocutorSubName)
+    public IActionResult SearchInterlocutor([FromQuery] string interlocutorSubName)
     {
         var interlocutorsBySubName = _chatService.SearchUsers(interlocutorSubName);
         return Ok(interlocutorsBySubName);

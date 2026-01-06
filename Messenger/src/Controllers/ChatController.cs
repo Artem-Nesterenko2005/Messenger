@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Prometheus;
 
 namespace Messenger;
 
@@ -12,8 +11,6 @@ public class ChatController : Controller
     private readonly IMessagingService _messagingService;
 
     private readonly IClaimService _claimService;
-
-    private readonly ILogger<ChatController> _logger;
 
     private readonly IMetricsService _metricsService;
 
@@ -27,7 +24,6 @@ public class ChatController : Controller
         _chatService = chatService;
         _messagingService = messagingService;
         _claimService = claimService;
-        _logger = logger;
         _metricsService = metricsService;
     }
 
