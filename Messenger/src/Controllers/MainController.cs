@@ -6,20 +6,23 @@ namespace Messenger;
 [Authorize]
 public class MainController : Controller
 {
-    private readonly IChatService _chatService;
+    private readonly IMessageService _chatService;
+
+    private readonly IChatsService _chatsService;
 
     private readonly IClaimService _claimService;
 
-    public MainController(IChatService chatService, IClaimService claimService)
+    public MainController(IMessageService chatService, IClaimService claimService, IChatsService chatsService)
     {
         _chatService = chatService;
         _claimService = claimService;
+        _chatsService = chatsService;
     }
 
     [HttpGet("/MainPage")]
     public async Task<IActionResult> MainPage()
     {
-        var chats = await _chatService.GetUserInterlocutorsAsync(_claimService.GetUserId());
+        var chats = await _chatsService.GetUserInterlocutorsAsync(_claimService.GetUserId());
         return View(new InterlocutorsViewModel 
         { 
             Interlocutors = chats
@@ -42,7 +45,7 @@ public class MainController : Controller
     [HttpGet("/SearchInterlocutor")]
     public IActionResult SearchInterlocutor([FromQuery] string interlocutorSubName)
     {
-        var interlocutorsBySubName = _chatService.SearchUsers(interlocutorSubName);
+        var interlocutorsBySubName = _chatsService.SearchUsers(interlocutorSubName);
         return Ok(interlocutorsBySubName);
     }
 }

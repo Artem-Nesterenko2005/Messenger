@@ -15,7 +15,7 @@
         <div id="messages-list">
             @foreach (var message in Model.Messages)
             {
-                <div class="message @(message.SenderId == Model.MyId ? "my-message" : "their-message")">
+                <div id="@message.Id" class="message @(message.SenderId == Model.MyId ? "my-message" : "their-message")">
                     <strong>@message.SenderName:</strong> @message.Content
                 </div>
             }
@@ -40,6 +40,40 @@
                 hubUrl: '/chatHub'
             });
         });
+    </script>
+
+    <script>
+        document.getElementById('messages-list')?.addEventListener('contextmenu', function(event) {
+            const myMessageElement = event.target.closest('.message.my-message[id]');
+
+            if (myMessageElement) {
+                event.preventDefault();
+                handleMyMessageRightClick(event, myMessageElement);
+            }
+        });
+
+        async function handleMyMessageRightClick(event, element) {
+            if (confirm('Удалить ваше сообщение?')) {
+                try {
+                    const response = await fetch(`/DeleteMessage?messageId=${element.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('Ваше сообщение удалено!');
+                        element.remove();
+                    } else {
+                        alert('Ошибка при удалении: ' + response.status);
+                    }
+                } catch (error) {
+                    console.error('Ошибка сети:', error);
+                    alert('Ошибка сети');
+                }
+            }
+        }
     </script>
 </body>
 </html>

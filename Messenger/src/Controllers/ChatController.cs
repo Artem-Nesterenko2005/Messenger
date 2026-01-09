@@ -6,17 +6,17 @@ namespace Messenger;
 [Authorize]
 public class ChatController : Controller
 {
-    private readonly IChatService _chatService;
+    private readonly IMessageService _chatService;
 
-    private readonly IMessagingService _messagingService;
+    private readonly ISendMessagesService _messagingService;
 
     private readonly IClaimService _claimService;
 
     private readonly IMetricsService _metricsService;
 
     public ChatController(
-        IChatService chatService,
-        IMessagingService messagingService,
+        IMessageService chatService,
+        ISendMessagesService messagingService,
         IClaimService claimService,
         ILogger<ChatController> logger,
         IMetricsService metricsService)
@@ -56,6 +56,13 @@ public class ChatController : Controller
             recipientId,
             content);
 
+        return NoContent();
+    }
+
+    [HttpDelete("/DeleteMessage")]
+    public IActionResult DeleteMessage([FromQuery] string messageId)
+    {
+        _chatService.DeleteMessageByIdAsync(messageId);
         return NoContent();
     }
 }

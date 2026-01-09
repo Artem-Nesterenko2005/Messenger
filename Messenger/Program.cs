@@ -33,9 +33,10 @@ void ConfigurationCustomServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserValidationService, UserValidationService>();
     builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
-    builder.Services.AddScoped<IChatService, ChatService>();
+    builder.Services.AddScoped<IMessageService, MessageService>();
     builder.Services.AddScoped<IClaimService, ClaimService>();
-    builder.Services.AddScoped<IMessagingService, MessagingService>();
+    builder.Services.AddScoped<ISendMessagesService, SendMessagesService>();
+    builder.Services.AddScoped<IChatsService, ChatsService>();
 }
 
 void ConfigurationAuthorization(WebApplicationBuilder builder)

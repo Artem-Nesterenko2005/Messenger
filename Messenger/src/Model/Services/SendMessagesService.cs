@@ -2,16 +2,16 @@
 
 namespace Messenger;
 
-public interface IMessagingService
+public interface ISendMessagesService
 {
     public Task SendMessageAsync(MessageDto message);
 }
 
-public class MessagingService : IMessagingService
+public class SendMessagesService : ISendMessagesService
 {
     private readonly IHubContext<ChatHub> _hub;
 
-    public MessagingService(IHubContext<ChatHub> hub)
+    public SendMessagesService(IHubContext<ChatHub> hub)
     {
         _hub = hub;
     }
