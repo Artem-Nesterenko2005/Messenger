@@ -1,21 +1,19 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
 
 namespace Messenger;
 
 public class ChatHub : Hub
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IClaimService _claimService;
 
-    public ChatHub(IHttpContextAccessor httpContextAccessor)
+    public ChatHub(IClaimService claimService)
     {
-        _httpContextAccessor = httpContextAccessor;
+        _claimService = claimService;
     }
 
     public override async Task OnConnectedAsync()
     {
-        var userId = _httpContextAccessor.HttpContext?.User
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _claimService.GetUserId();
 
         if (!string.IsNullOrEmpty(userId))
         {
@@ -27,8 +25,7 @@ public class ChatHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var userId = _httpContextAccessor.HttpContext?.User
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _claimService.GetUserId();
 
         if (!string.IsNullOrEmpty(userId))
         {

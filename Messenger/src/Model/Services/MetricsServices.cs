@@ -14,11 +14,10 @@ public interface IMetricsService
 
 public class MetricsService : IMetricsService
 {
-    // 1. Счетчики
     private static readonly Counter _messagesSentCounter = Metrics
         .CreateCounter("messenger_messages_sent_total",
             "Total messages sent",
-            labelNames: new[] { "from_user", "to_user", "type" });
+            labelNames: new[] { "from_user", "to_user", "content" });
 
     private static readonly Counter _messagesReceivedCounter = Metrics
         .CreateCounter("messenger_messages_received_total",
@@ -35,12 +34,10 @@ public class MetricsService : IMetricsService
             "Total errors",
             labelNames: new[] { "type" });
 
-    // 2. Гейджи (текущие значения)
     private static readonly Gauge _activeConnectionsGauge = Metrics
         .CreateGauge("messenger_active_connections",
             "Currently active connections");
 
-    // 3. Гистограммы (распределение)
     private static readonly Histogram _messageDeliveryHistogram = Metrics
         .CreateHistogram("messenger_message_delivery_ms",
             "Message delivery time in milliseconds",
@@ -50,10 +47,10 @@ public class MetricsService : IMetricsService
                 LabelNames = new[] { "message_type" }
             });
 
-    public void MessageSent(string fromUser, string toUser, string messageType)
+    public void MessageSent(string fromUser, string toUser, string content)
     {
         _messagesSentCounter
-            .WithLabels(fromUser ?? "system", toUser ?? "unknown", messageType ?? "text")
+            .WithLabels(fromUser ?? "system", toUser ?? "unknown", content)
             .Inc();
     }
 
