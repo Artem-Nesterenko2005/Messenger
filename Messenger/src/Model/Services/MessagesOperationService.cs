@@ -2,16 +2,18 @@
 
 namespace Messenger;
 
-public interface ISendMessagesService
+public interface IMessagesOperationService
 {
     public Task SendMessageAsync(MessageDto message);
+
+    public Task DeleteMessageToInterlocutorAsync(string interlocutorId, string messageId);
 }
 
-public class SendMessagesService : ISendMessagesService
+public class MessagesOperationService : IMessagesOperationService
 {
     private readonly IHubContext<ChatHub> _hub;
 
-    public SendMessagesService(IHubContext<ChatHub> hub)
+    public MessagesOperationService(IHubContext<ChatHub> hub)
     {
         _hub = hub;
     }
@@ -24,5 +26,10 @@ public class SendMessagesService : ISendMessagesService
             content = message.Content,
             timestamp = DateTime.Now
         });
+    }
+
+    public async Task DeleteMessageToInterlocutorAsync(string interlocutorId, string messageId)
+    {
+        await _hub.Clients.User(interlocutorId).SendAsync("DeleteMessage", messageId);
     }
 }

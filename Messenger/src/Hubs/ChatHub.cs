@@ -44,4 +44,9 @@ public class ChatHub : Hub
     {
         await Clients.User(userId).SendAsync("Receive", message);
     }
+
+    public async Task DeleteMessage(string userId, string messageId)
+    {
+        await Clients.User(userId).SendAsync("DeleteMessage", messageId);
+    }
 }

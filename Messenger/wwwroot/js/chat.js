@@ -23,6 +23,7 @@
             .build();
 
         this.connection.on("Receive", this.onMessageReceived.bind(this));
+        this.connection.on("DeleteMessage", this.onMessageDelete.bind(this));
 
         this.connection.start()
             .then(() => {
@@ -55,6 +56,17 @@
         );
 
         this.scrollToBottom();
+    }
+
+    onMessageDelete(messageId) {
+        console.log("Получено уведомление об удалении сообщения:", messageId);
+
+        const messageElement = document.getElementById(messageId);
+        if (messageElement) {
+            messageElement.remove();
+        } else {
+            $(this.messagesListId).find(`[id="${messageId}"]`).remove();
+        }
     }
 
     sendMessage() {

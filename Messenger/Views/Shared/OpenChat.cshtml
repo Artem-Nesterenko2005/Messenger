@@ -43,6 +43,8 @@
     </script>
 
     <script>
+        const interlocutorIdFromModel = '@Model.InterlocutorId';
+
         document.getElementById('messages-list')?.addEventListener('contextmenu', function(event) {
             const myMessageElement = event.target.closest('.message.my-message[id]');
 
@@ -55,7 +57,7 @@
         async function handleMyMessageRightClick(event, element) {
             if (confirm('Удалить ваше сообщение?')) {
                 try {
-                    const response = await fetch(`/DeleteMessage?messageId=${element.id}`, {
+                    const response = await fetch(`/DeleteMessage?messageId=${element.id}&interlocutorId=${interlocutorIdFromModel}`, {
                         method: 'DELETE',
                         headers: {
                             'Accept': 'application/json'

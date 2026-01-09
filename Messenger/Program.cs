@@ -35,7 +35,7 @@ void ConfigurationCustomServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
     builder.Services.AddScoped<IMessageService, MessageService>();
     builder.Services.AddScoped<IClaimService, ClaimService>();
-    builder.Services.AddScoped<ISendMessagesService, SendMessagesService>();
+    builder.Services.AddScoped<IMessagesOperationService, MessagesOperationService>();
     builder.Services.AddScoped<IChatsService, ChatsService>();
 }
 

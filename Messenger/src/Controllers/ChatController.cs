@@ -8,7 +8,7 @@ public class ChatController : Controller
 {
     private readonly IMessageService _chatService;
 
-    private readonly ISendMessagesService _messagingService;
+    private readonly IMessagesOperationService _messagesOperationService;
 
     private readonly IClaimService _claimService;
 
@@ -16,13 +16,13 @@ public class ChatController : Controller
 
     public ChatController(
         IMessageService chatService,
-        ISendMessagesService messagingService,
+        IMessagesOperationService messagesOperationService,
         IClaimService claimService,
         ILogger<ChatController> logger,
         IMetricsService metricsService)
     {
         _chatService = chatService;
-        _messagingService = messagingService;
+        _messagesOperationService = messagesOperationService;
         _claimService = claimService;
         _metricsService = metricsService;
     }
@@ -37,14 +37,14 @@ public class ChatController : Controller
             _claimService.GetUserName(),
             content);
 
-        await _messagingService.SendMessageAsync(new MessageDto
+        await _messagesOperationService.SendMessageAsync(new MessageDto
         {
             RecipientId = recipientId,
             Content = content,
             SenderName = _claimService.GetUserName()
         });
 
-        await _messagingService.SendMessageAsync(new MessageDto
+        await _messagesOperationService.SendMessageAsync(new MessageDto
         {
             RecipientId = _claimService.GetUserId(),
             Content = content,
@@ -60,9 +60,10 @@ public class ChatController : Controller
     }
 
     [HttpDelete("/DeleteMessage")]
-    public IActionResult DeleteMessage([FromQuery] string messageId)
+    public async Task<IActionResult> DeleteMessage([FromQuery] string messageId, [FromQuery] string interlocutorId)
     {
-        _chatService.DeleteMessageByIdAsync(messageId);
+        await _chatService.DeleteMessageByIdAsync(messageId);
+        await _messagesOperationService.DeleteMessageToInterlocutorAsync(interlocutorId, messageId);
         return NoContent();
     }
 }
