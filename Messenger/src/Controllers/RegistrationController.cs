@@ -5,11 +5,11 @@ namespace Messenger;
 
 public class RegistrationController : Controller
 {
-    private readonly IUserAuthorizationService _userService;
+    private readonly IUserAuthenticationService _userService;
 
     private readonly IUserValidationService _userValidationService;
 
-    public RegistrationController(IUserAuthorizationService userService, IUserValidationService validationService)
+    public RegistrationController(IUserAuthenticationService userService, IUserValidationService validationService)
     {
         _userService = userService;
         _userValidationService = validationService;

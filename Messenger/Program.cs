@@ -28,7 +28,7 @@ void ConfigurationMetrics(WebApplicationBuilder builder)
 
 void ConfigurationCustomServices(WebApplicationBuilder builder)
 {
-    builder.Services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
+    builder.Services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
     builder.Services.AddScoped<IMessageRepository, MessageRepository>();
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserValidationService, UserValidationService>();

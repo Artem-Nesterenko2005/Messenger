@@ -1,13 +1,13 @@
 ﻿namespace Messenger.Services;
 
-public interface IUserAuthorizationService
+public interface IUserAuthenticationService
 {
     public Task RegistrationNewUser(RegistrationUserDto dto);
     
     public Task<List<ValidationError>?> Authorization(AuthorizationUserDto dto);
 }
 
-public class UserAuthorizationService : IUserAuthorizationService
+public class UserAuthenticationService : IUserAuthenticationService
 {
     private readonly IUserRepository _userRepository;
 
@@ -15,7 +15,7 @@ public class UserAuthorizationService : IUserAuthorizationService
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserAuthorizationService(
+    public UserAuthenticationService(
         IUserRepository repository,
         IAuthorizationService authorizationService,
         IHttpContextAccessor httpContextAccessor)

@@ -27,6 +27,7 @@ public class ClaimService : IClaimService
     public string GetUserName()
     {
         return _httpContextAccessor.HttpContext?.User
-            .FindFirstValue(ClaimTypes.Name);
+            .FindFirstValue(ClaimTypes.Name)
+            ?? throw new UnauthorizedAccessException("User not authenticated");
     }
 }
