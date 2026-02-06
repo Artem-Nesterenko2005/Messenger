@@ -35,7 +35,11 @@ public class MessageRepository : IMessageRepository
 
     public async Task DeleteMessageByIdAsync(string messageId)
     {
-        await _context.Messages.Where(m => m.Id == messageId).ExecuteDeleteAsync();
-        await _context.SaveChangesAsync();
+        var message = await _context.Messages.FindAsync(messageId);
+        if (message != null)
+        {
+            _context.Messages.Remove(message);
+            await _context.SaveChangesAsync();
+        }
     }
 }
